@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: "Instrument Sans", system-ui, sans-serif;
+    @apply min-h-screen bg-slate-950 text-slate-900 antialiased;
+    background:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 28%),
+      radial-gradient(circle at top right, rgba(14, 165, 233, 0.16), transparent 24%),
+      linear-gradient(180deg, #f8fbff 0%, #eef4ff 52%, #f6f8fc 100%);
+  }
+
+  h1,
+  h2,
+  h3,
+  .display-font {
+    font-family: "Space Grotesk", "Instrument Sans", system-ui, sans-serif;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  ::selection {
+    @apply bg-brand-500 text-white;
+  }
+}
+
+body {
+  position: relative;
+}
+
+#root {
+  @apply min-h-screen;
+}
