@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-function VideoUploadForm({ isSubmitting, onSubmit }) {
+function VideoUploadForm({ isSubmitting, submitLabel, onSubmit }) {
   const [formState, setFormState] = useState({
     title: "",
     description: "",
@@ -209,7 +209,7 @@ function VideoUploadForm({ isSubmitting, onSubmit }) {
         disabled={isSubmitting}
         className="inline-flex rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Uploading..." : "Upload & generate thumbnails"}
+        {submitLabel || (isSubmitting ? "Uploading..." : "Upload & generate thumbnails")}
       </button>
     </form>
   );

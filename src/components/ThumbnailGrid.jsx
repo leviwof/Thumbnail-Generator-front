@@ -25,7 +25,7 @@ function ThumbnailGrid({
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {thumbnails.map((thumbnail) => {
         const isPrimary = thumbnail._id === primaryThumbnailId;
         const thumbnailSource = thumbnail.url || thumbnail.thumbnailUrl;
@@ -117,7 +117,7 @@ function ThumbnailGrid({
           </div>
         );
       })}
-      {downloadError ? <p className="sm:col-span-2 xl:col-span-4 text-sm text-red-600">{downloadError}</p> : null}
+      {downloadError ? <p className="sm:col-span-2 lg:col-span-3 xl:col-span-5 text-sm text-red-600">{downloadError}</p> : null}
     </div>
   );
 }

@@ -11,26 +11,48 @@ import { rememberPendingAuthAction } from "../utils/authToastState";
 function UploadVideoPage() {
   const navigate = useNavigate();
   const [uploadError, setUploadError] = useState("");
+  const [uploadPhase, setUploadPhase] = useState(""); // "", "uploading", "generating"
   const uploadMutation = useUploadVideo();
   const generateMutation = useGenerateThumbnails();
   const { error: showErrorToast, info, success } = useToast();
 
+  const isSubmitting = uploadPhase === "uploading" || uploadPhase === "generating";
+
   async function handleSubmit(formState) {
     try {
       setUploadError("");
+      setUploadPhase("uploading");
+
       const uploadResult = await uploadMutation.mutateAsync(formState);
       const videoId = uploadResult.videoId;
-      generateMutation.mutate(videoId);
-      success(
-        "Video added",
-        "Your video was uploaded. Thumbnails are being generated in the background and will appear shortly."
-      );
+
+      // Phase 2: Generate thumbnails synchronously so the user
+      // lands on the detail page with thumbnails already visible.
+      setUploadPhase("generating");
+
+      try {
+        await generateMutation.mutateAsync(videoId);
+        success(
+          "Video ready",
+          "Your video is uploaded and thumbnails are ready for review."
+        );
+      } catch (_thumbnailError) {
+        // Thumbnail generation failed but the video was uploaded
+        // successfully. Navigate to the detail page anyway.
+        info(
+          "Video uploaded",
+          "Thumbnails could not be generated automatically. You can retry from the video detail page."
+        );
+      }
+
       navigate(`/videos/${videoId}`);
     } catch (error) {
       const message = error.response?.data?.message || error.message;
 
       setUploadError(message);
       showErrorToast("Upload failed", message);
+    } finally {
+      setUploadPhase("");
     }
   }
 
@@ -42,6 +64,12 @@ function UploadVideoPage() {
   function handleSignUpClick() {
     rememberPendingAuthAction("sign-up");
     info("Redirecting to sign up", "Create an account first to add a new video.");
+  }
+
+  function getSubmitLabel() {
+    if (uploadPhase === "uploading") return "Uploading video...";
+    if (uploadPhase === "generating") return "Generating thumbnails...";
+    return "Upload & generate thumbnails";
   }
 
   return (
@@ -93,7 +121,8 @@ function UploadVideoPage() {
       <ClerkLoaded>
         <Show when="signed-in">
           <VideoUploadForm
-            isSubmitting={uploadMutation.isPending || generateMutation.isPending}
+            isSubmitting={isSubmitting}
+            submitLabel={getSubmitLabel()}
             onSubmit={handleSubmit}
           />
         </Show>

@@ -20,14 +20,30 @@ export async function uploadVideo(payload) {
   const { data } = await http.post("/api/videos/upload", formData, {
     headers: {
       "Content-Type": "multipart/form-data"
-    }
+    },
+    // Upload can be large — allow up to 5 minutes.
+    timeout: 300_000
   });
 
   return data;
 }
 
+/**
+ * Synchronous thumbnail generation.
+ * The server waits for ffmpeg to finish and returns the full thumbnail
+ * list, so no polling is needed.
+ */
 export async function generateThumbnails(videoId) {
-  const { data } = await http.post(`/api/videos/${videoId}/thumbnails/generate`);
+  const { data } = await http.post(
+    `/api/videos/${videoId}/thumbnails/generate`,
+    null,
+    {
+      // Thumbnail generation involves ffmpeg processing and can take
+      // 30–60 s for large files. Use a generous timeout.
+      timeout: 120_000
+    }
+  );
+
   return data;
 }
 
