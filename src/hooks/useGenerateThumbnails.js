@@ -18,8 +18,12 @@ export function useGenerateThumbnails(videoId) {
       // are present or we hit a max number of attempts. This avoids forcing the
       // user to wait on the generate API itself while still updating the UI
       // shortly after the background job completes.
-      const maxAttempts = 15;
-      const delayMs = 1500;
+      //
+      // Poll a bit more aggressively so thumbnails appear sooner after upload,
+      // while still backing off to avoid hammering the server.
+      const maxAttempts = 24;
+      const initialDelayMs = 600;
+      const maxDelayMs = 2000;
 
       async function poll(attempt = 0) {
         if (!resolvedVideoId || attempt >= maxAttempts) {
@@ -34,9 +38,11 @@ export function useGenerateThumbnails(videoId) {
         const hasThumbnails = Array.isArray(video?.thumbnails) && video.thumbnails.length > 0;
 
         if (!hasThumbnails) {
+          const nextDelay = Math.min(initialDelayMs * Math.max(1, attempt + 1), maxDelayMs);
+
           setTimeout(() => {
             void poll(attempt + 1);
-          }, delayMs);
+          }, nextDelay);
         } else {
           // Final refresh to ensure all dependent views see the latest data.
           queryClient.invalidateQueries({ queryKey: ["videos"] });
