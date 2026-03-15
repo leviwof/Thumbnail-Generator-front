@@ -20,8 +20,11 @@ function UploadVideoPage() {
       setUploadError("");
       const uploadResult = await uploadMutation.mutateAsync(formState);
       const videoId = uploadResult.videoId;
-      await generateMutation.mutateAsync(videoId);
-      success("Video added", "Your video was uploaded and thumbnails were generated.");
+      generateMutation.mutate(videoId);
+      success(
+        "Video added",
+        "Your video was uploaded. Thumbnails are being generated in the background and will appear shortly."
+      );
       navigate(`/videos/${videoId}`);
     } catch (error) {
       const message = error.response?.data?.message || error.message;
